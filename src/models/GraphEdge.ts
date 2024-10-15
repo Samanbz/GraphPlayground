@@ -1,34 +1,50 @@
 import { GraphCanvas } from "./GraphCanvas";
 import { GraphEntity } from "./GraphEntity";
 import { GraphNode } from "./GraphNode";
-
-
+import { Point } from "./Point";
 export class GraphEdge implements GraphEntity {
-    canvas: GraphCanvas;
+  canvas: GraphCanvas;
 
-    private from: GraphNode;
-    private to: GraphNode;
-    private lineWidth: number = 2;
-    private strokeColor: string = 'gray';
+  private _from: Point;
+  private _to: Point;
+  private lineWidth: number = 2;
+  private strokeColor: string = "#FFFFFFEE";
 
-    constructor(canvas: GraphCanvas, from: GraphNode, to: GraphNode) {
-        this.canvas = canvas;
-        canvas.addEdge(this);
+  constructor(canvas: GraphCanvas, from: GraphNode, to: Point) {
+    this.canvas = canvas;
+    canvas.addEdge(this);
 
-        this.from = from;
-        this.to = to;
-    }
+    this._from = from;
+    this._to = to;
+  }
 
-    render(): void {
-        let ctx = this.canvas.ctx;
+  setDestination(to: Point): void {
+    this._to = to;
+  }
 
-        ctx.beginPath();
-        ctx.moveTo(this.from.x, this.from.y);
-        ctx.lineTo(this.to.x, this.to.y);
-        ctx.lineWidth = this.lineWidth;
-        ctx.strokeStyle = this.strokeColor;
-        ctx.stroke();
-        ctx.closePath();
+  setLineWidth(width: number): void {
+    this.lineWidth = width;
+  }
 
-    }
+  containsNode(node: Point): boolean {
+    return this._from === node || this._to === node;
+  }
+
+  get from(): Point {
+    return this._from;
+  }
+
+  get to(): Point {
+    return this._to;
+  }
+
+  render(): void {
+    this.canvas.ctx.beginPath();
+    this.canvas.ctx.moveTo(this._from.x, this._from.y);
+    this.canvas.ctx.lineTo(this._to.x, this._to.y);
+    this.canvas.ctx.lineWidth = this.lineWidth;
+    this.canvas.ctx.strokeStyle = this.strokeColor;
+    this.canvas.ctx.stroke();
+    this.canvas.ctx.closePath();
+  }
 }

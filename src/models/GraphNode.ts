@@ -1,37 +1,19 @@
-import { GraphCanvas, GraphEntity } from "@models/index";
+import { GraphCanvas } from "./GraphCanvas";
+import { GraphEntity } from "./GraphEntity";
+import { Point } from "./Point";
 
-export class GraphNode implements GraphEntity {
+export class GraphNode extends Point implements GraphEntity {
   canvas: GraphCanvas;
 
-  private _x: number;
-  private _y: number;
   private _radius: number = 40;
-  private color: string = "#ade8f4";
-  private lineWidth: number = this.radius / 10;
-  private strokeColor: string = "#0077b6";
+  private color: string = "#bbdefb";
+  private lineWidth: number = this.radius / 15;
+  private strokeColor: string = "#2196f3";
 
   constructor(canvas: GraphCanvas, x: number, y: number) {
+    super(x, y);
     this.canvas = canvas;
     canvas.addNode(this);
-
-    this._x = x;
-    this._y = y;
-  }
-
-  get x(): number {
-    return this._x;
-  }
-
-  set x(value: number) {
-    this._x = value;
-  }
-
-  get y(): number {
-    return this._y;
-  }
-
-  set y(value: number) {
-    this._y = value;
   }
 
   get radius(): number {
@@ -42,16 +24,16 @@ export class GraphNode implements GraphEntity {
    * Changes the styling of the node to indicate that it is selected.
    */
   select(): void {
-    this.color = "#f4a261";
-    this.strokeColor = "#e76f51";
+    this.color = "#2196f3";
+    this.strokeColor = "#2196f3";
   }
 
   /**
    * Changes the styling of the node to indicate that it is not selected.
    */
   deselect(): void {
-    this.color = "#ade8f4";
-    this.strokeColor = "#0077b6";
+    this.color = "#bbdefb";
+    this.strokeColor = "#2196f3";
   }
 
   render(): void {

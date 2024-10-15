@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  HostListener,
-  ViewChild,
-} from "@angular/core";
+import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from "@angular/core";
 import { GraphCanvas, GraphNode } from "@models/index";
 
 @Component({
@@ -21,30 +15,34 @@ export class CanvasContainerComponent implements AfterViewInit {
 
   @HostListener("mousedown", ["$event"])
   onMouseDown(event: MouseEvent) {
-    const clickedNode: GraphNode | undefined = this.canvas.getClickedNode(event);
-    this.canvas.selectNode(clickedNode);
+    this.canvas.handleMouseDown(event);
   }
 
   @HostListener("mouseup", ["$event"])
   onMouseUp(event: MouseEvent) {
-    const clickedNode: GraphNode | undefined = this.canvas.getClickedNode(event);
-    if (!clickedNode) {
-      this.canvas.deselectNode();
-    } else {
-      this.canvas.secondaryNodeClick(clickedNode);
-    }
+    this.canvas.handleMouseUp(event);
   }
 
   @HostListener("mousemove", ["$event"])
   onMouseMove(event: MouseEvent) {
-    this.canvas.moveSelectedNode(event);
+    this.canvas.handleMouseMove(event);
   }
 
   @HostListener("dblclick", ["$event"])
   onDoubleClick(event: MouseEvent) {
-    const clickedNode: GraphNode | undefined = this.canvas.getClickedNode(event);
-    this.canvas.handleDoubleClick(event, clickedNode);
+    this.canvas.handleDoubleClick(event);
   }
+
+  @HostListener("document:keydown.shift")
+  onShiftDown() {
+    this.canvas.handleShiftDown();
+  }
+
+  @HostListener("document:keyup.shift")
+  onShiftUp() {
+    this.canvas.handleShiftUp();
+  }
+
   ngAfterViewInit() {
     this.canvas = new GraphCanvas(this.canvasElement.nativeElement);
     this.canvas.render();

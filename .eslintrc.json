@@ -15,7 +15,7 @@
       "rules": {
         "quotes": ["error", "double", { "avoidEscape": true }],
         "semi": ["error", "always"],
-        "prettier/prettier": ["error", { "endOfLine": "auto", "printWidth": 90 }],
+        "prettier/prettier": ["error", { "endOfLine": "auto", "printWidth": 120 }],
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -36,10 +36,7 @@
     },
     {
       "files": ["*.html"],
-      "extends": [
-        "plugin:@angular-eslint/template/recommended",
-        "plugin:@angular-eslint/template/accessibility"
-      ],
+      "extends": ["plugin:@angular-eslint/template/recommended", "plugin:@angular-eslint/template/accessibility"],
       "rules": {}
     }
   ]
