@@ -1,16 +1,16 @@
-import { GraphCanvas } from "./GraphCanvas";
+import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 import { GraphEntity } from "./GraphEntity";
 import { GraphNode } from "./GraphNode";
 import { Point } from "./Point";
 export class GraphEdge implements GraphEntity {
-  canvas: GraphCanvas;
+  canvas: GraphCanvasRenderer;
 
   private _from: Point;
   private _to: Point;
   private lineWidth: number = 2;
   private strokeColor: string = "#FFFFFFEE";
 
-  constructor(canvas: GraphCanvas, from: GraphNode, to: Point) {
+  constructor(canvas: GraphCanvasRenderer, from: GraphNode, to: Point) {
     this.canvas = canvas;
     canvas.addEdge(this);
 

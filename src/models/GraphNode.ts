@@ -1,16 +1,16 @@
-import { GraphCanvas } from "./GraphCanvas";
+import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 import { GraphEntity } from "./GraphEntity";
 import { Point } from "./Point";
 
 export class GraphNode extends Point implements GraphEntity {
-  canvas: GraphCanvas;
+  canvas: GraphCanvasRenderer;
 
   private _radius: number = 40;
   private color: string = "#bbdefb";
   private lineWidth: number = this.radius / 15;
   private strokeColor: string = "#2196f3";
 
-  constructor(canvas: GraphCanvas, x: number, y: number) {
+  constructor(canvas: GraphCanvasRenderer, x: number, y: number) {
     super(x, y);
     this.canvas = canvas;
     canvas.addNode(this);

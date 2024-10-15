@@ -1,5 +1,5 @@
 export * from "./Point";
 export * from "./GraphNode";
 export * from "./GraphEdge";
-export * from "./GraphCanvas";
+export * from "./GraphCanvasHandlers";
 export * from "./GraphEntity";

@@ -1,6 +1,6 @@
-import { GraphCanvas } from "@models/index";
+import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 
 export interface GraphEntity {
-  canvas: GraphCanvas;
+  canvas: GraphCanvasRenderer;
   render(): void;
 }

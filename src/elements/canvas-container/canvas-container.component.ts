@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from "@angular/core";
-import { GraphCanvas, GraphNode } from "@models/index";
+import { GraphCanvasHandlers, GraphNode } from "@models/index";
 
 @Component({
   selector: "app-canvas-container",
@@ -11,7 +11,7 @@ import { GraphCanvas, GraphNode } from "@models/index";
 export class CanvasContainerComponent implements AfterViewInit {
   @ViewChild("canvas", { static: false })
   canvasElement!: ElementRef<HTMLCanvasElement>;
-  private canvas!: GraphCanvas;
+  private canvas!: GraphCanvasHandlers;
 
   @HostListener("mousedown", ["$event"])
   onMouseDown(event: MouseEvent) {
@@ -44,7 +44,7 @@ export class CanvasContainerComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.canvas = new GraphCanvas(this.canvasElement.nativeElement);
+    this.canvas = new GraphCanvasHandlers(this.canvasElement.nativeElement);
     this.canvas.render();
 
     new GraphNode(this.canvas, 100, 100);
