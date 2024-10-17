@@ -1,6 +1,7 @@
 import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 import { GraphEdge } from "./GraphEdge";
 import { GraphNode } from "./GraphNode";
+import { Coordinate } from "./Coordinate";
 import { Point } from "./Point";
 
 /**
@@ -13,6 +14,7 @@ export class GraphCanvasActions extends GraphCanvasRenderer {
   protected nodeMovementAllowed: boolean = false;
   protected shiftDown: boolean = false;
   protected strayEdge: GraphEdge | undefined;
+  protected strayEdgeEnd: Point | undefined;
 
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
@@ -22,11 +24,7 @@ export class GraphCanvasActions extends GraphCanvasRenderer {
    * @returns the clicked node or undefined if no node was clicked
    */
   protected getClickedNode(event: MouseEvent): GraphNode | undefined {
-    return this.nodes.find((node) => {
-      const dx = event.clientX - this.canvas.offsetLeft - node.x;
-      const dy = event.clientY - this.canvas.offsetTop - node.y;
-      return dx * dx + dy * dy <= node.radius * node.radius;
-    });
+    return this.nodes.find((node) => node.contains(event.clientX, event.clientY));
   }
 
   /**
@@ -54,7 +52,7 @@ export class GraphCanvasActions extends GraphCanvasRenderer {
     }
   }
 
-  protected edgeExists(from: Point, to: Point): boolean {
+  protected edgeExists(from: Coordinate, to: Coordinate): boolean {
     return !!this.edges.find((edge) => edge.from === from && edge.to === to);
   }
 

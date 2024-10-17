@@ -47,7 +47,7 @@ export class CanvasContainerComponent implements AfterViewInit {
     this.canvas = new GraphCanvasHandlers(this.canvasElement.nativeElement);
     this.canvas.render();
 
-    new GraphNode(this.canvas, 100, 100);
+    new GraphNode(this.canvas, 0, 0);
     new GraphNode(this.canvas, 200, 200);
   }
 }

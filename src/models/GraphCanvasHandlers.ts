@@ -12,7 +12,8 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
     const clickedNode: GraphNode | undefined = this.getClickedNode(event);
     if (clickedNode) {
       if (this.shiftDown && !this.strayEdge) {
-        this.strayEdge = new GraphEdge(this, clickedNode, new Point(event.clientX, event.clientY));
+        this.strayEdgeEnd = new Point(this, event.clientX, event.clientY);
+        this.strayEdge = new GraphEdge(this, clickedNode, this.strayEdgeEnd);
       } else if (this.shiftDown && this.strayEdge) {
         this.connectStrayEdge(clickedNode);
       } else {
@@ -40,13 +41,12 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
    * @param event mouse move event
    */
   handleMouseMove(event: MouseEvent): void {
-    if (this.strayEdge && this.shiftDown) {
-      const strayEnd = new Point(event.clientX - this.canvas.offsetLeft, event.clientY - this.canvas.offsetTop);
-      this.strayEdge.setDestination(strayEnd);
+    if (this.strayEdge && this.strayEdgeEnd && this.shiftDown) {
+      this.strayEdgeEnd.move(event.clientX, event.clientY);
+      this.strayEdge.setDestination(this.strayEdgeEnd);
     }
     if (this.selectedNode && this.nodeMovementAllowed) {
-      this.selectedNode.x = event.clientX - this.canvas.offsetLeft;
-      this.selectedNode.y = event.clientY - this.canvas.offsetTop;
+      this.selectedNode.move(event.clientX, event.clientY);
     }
   }
 

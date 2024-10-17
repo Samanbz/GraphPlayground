@@ -1,62 +1,74 @@
+import { CoordUtils } from "utils/CoordUtils";
+import { Coordinate } from "./Coordinate";
 import { Graph } from "./Graph";
+import { GraphGrid } from "./GraphGrid";
 
 export class GraphCanvasRenderer extends Graph {
-  protected canvas: HTMLCanvasElement;
+  readonly canvasElement: HTMLCanvasElement;
   readonly ctx: CanvasRenderingContext2D;
+  readonly coordUtils: CoordUtils;
+
+  private grid: GraphGrid;
 
   constructor(canvas: HTMLCanvasElement) {
     super();
-    this.canvas = canvas;
+    this.canvasElement = canvas;
     this.ctx = canvas.getContext("2d")!;
+    this.coordUtils = new CoordUtils(this);
     this.adaptToDPR();
+    this.grid = new GraphGrid(this, 40);
+  }
+
+  get width(): number {
+    return this.canvasElement.width;
+  }
+
+  get height(): number {
+    return this.canvasElement.height;
+  }
+
+  get center(): Coordinate {
+    return {
+      x: this.width / 2,
+      y: this.height / 2,
+    };
   }
 
   /**
    * Adapt the canvas scale to the device pixel ratio.
    */
   protected adaptToDPR() {
-    const dpr = window.devicePixelRatio || 1;
-    const width = this.canvas.clientWidth;
-    const height = this.canvas.clientHeight;
+    const width = this.canvasElement.clientWidth;
+    const height = this.canvasElement.clientHeight;
 
-    this.canvas.width = width * dpr;
-    this.canvas.height = height * dpr;
+    this.canvasElement.width = width * CoordUtils.DPR;
+    this.canvasElement.height = height * CoordUtils.DPR;
+    this.ctx.transform(1 / CoordUtils.DPR, 0, 0, 1 / CoordUtils.DPR, 0, 0);
 
-    this.ctx.scale(dpr, dpr);
+    this.ctx.scale(CoordUtils.DPR, CoordUtils.DPR);
   }
 
-  protected renderGridPoint(x: number, y: number) {
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, 2, 0, 2 * Math.PI);
-    this.ctx.fillStyle = "#FFFFFF20";
-    this.ctx.fill();
-    this.ctx.closePath();
+  zoom(scale: number): void {
+    this.grid.adaptToScale(scale);
+    this.nodes.forEach((node) => {
+      node.adaptToScale(scale);
+    });
   }
-
-  protected renderGrid() {
-    const gridSepration = 40;
-
-    const width = this.canvas.clientWidth;
-    const height = this.canvas.clientHeight;
-    const gridWidth = Math.floor(width / gridSepration) + 1;
-    const gridHeight = Math.floor(height / gridSepration) + 1;
-
-    for (let i = -gridWidth / 2; i < gridWidth / 2; i++) {
-      for (let j = -gridHeight / 2; j < gridHeight / 2; j++) {
-        this.renderGridPoint(i * gridSepration + width / 2, j * gridSepration + height / 2);
-      }
-    }
-  }
-
   /**
    * Main rendering engine for the canvas.
    */
   render(): void {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.save();
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    this.renderGrid();
+    this.ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+
+    this.ctx.restore();
+
+    this.grid.render();
     this.edges.forEach((edge) => edge.render());
     this.nodes.forEach((node) => node.render());
+
     requestAnimationFrame(this.render.bind(this));
   }
 }
