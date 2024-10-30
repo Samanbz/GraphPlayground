@@ -15,14 +15,13 @@ export class Point implements Coordinate, GraphEntity {
     y: number,
   ) {
     this.canvas = canvas;
-    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.clientToCanvas(x, y);
-
+    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.coordsToCanvas({x, y});
     this._x = canvasX;
     this._y = canvasY;
   }
 
   get coords(): Coordinate {
-    return this.canvas.coordUtils.canvasToClient(this._x, this._y);
+    return this.canvas.coordUtils.canvasToCoords(this.canvasCoords);
   }
 
   get canvasCoords(): Coordinate {
@@ -30,6 +29,10 @@ export class Point implements Coordinate, GraphEntity {
       x: this._x,
       y: this._y,
     };
+  }
+
+  get clientCoords(): Coordinate {
+    return this.canvas.coordUtils.canvasToClient(this.canvasCoords);
   }
 
   get x(): number {
@@ -48,8 +51,8 @@ export class Point implements Coordinate, GraphEntity {
     this._radius *= factor;
   }
 
-  move(x: number, y: number): void {
-    const { x: newX, y: newY } = this.canvas.coordUtils.clientToCanvas(x, y);
+  move(coords: Coordinate): void {
+    const { x: newX, y: newY } = this.canvas.coordUtils.clientToCanvas(coords);
     this._x = newX;
     this._y = newY;
   }
@@ -60,7 +63,7 @@ export class Point implements Coordinate, GraphEntity {
    */
   protected transform(matrix: Matrix): void {
     const [newX, newY] = matrix.executeTransform(this.x, this.y);
-    this.move(newX, newY);
+    this.move({x: newX, y: newY});
   }
 
   adaptToScale(scaleFactor: number): void {

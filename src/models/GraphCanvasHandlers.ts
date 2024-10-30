@@ -1,3 +1,4 @@
+import { CoordUtils } from "utils/CoordUtils";
 import { GraphCanvasActions } from "./GraphCanvasActions";
 import { GraphEdge } from "./GraphEdge";
 import { GraphNode } from "./GraphNode";
@@ -8,14 +9,27 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
     super(canvas);
   }
 
+  /**
+   * @param event mouse click event
+   * @returns the clicked node or undefined if no node was clicked
+   */
+  protected getClickedNode(event: MouseEvent): GraphNode | undefined {
+    const mouseCoords = this.coordUtils.getMouseEventCoords(event);
+    return this.nodes.find((node) => node.contains(mouseCoords));
+  }
+
   handleMouseDown(event: MouseEvent): void {
+    const mouseCoords = this.coordUtils.getMouseEventCoords(event);
     const clickedNode: GraphNode | undefined = this.getClickedNode(event);
+
     if (clickedNode) {
       if (this.shiftDown && !this.strayEdge) {
-        this.strayEdgeEnd = new Point(this, event.clientX, event.clientY);
+        const strayEdgeEndCoords = this.coordUtils.clientToCoords(mouseCoords);
+        this.strayEdgeEnd = new Point(this, strayEdgeEndCoords.x, strayEdgeEndCoords.y);
         this.strayEdge = new GraphEdge(this, clickedNode, this.strayEdgeEnd);
       } else if (this.shiftDown && this.strayEdge) {
         this.connectStrayEdge(clickedNode);
+
       } else {
         this.nodeMovementAllowed = true;
       }
@@ -41,21 +55,26 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
    * @param event mouse move event
    */
   handleMouseMove(event: MouseEvent): void {
+    const mouseCoords = this.coordUtils.getMouseEventCoords(event);
+    
     if (this.strayEdge && this.strayEdgeEnd && this.shiftDown) {
-      this.strayEdgeEnd.move(event.clientX, event.clientY);
+      this.strayEdgeEnd.move(mouseCoords);
       this.strayEdge.setDestination(this.strayEdgeEnd);
     }
     if (this.selectedNode && this.nodeMovementAllowed) {
-      this.selectedNode.move(event.clientX, event.clientY);
+      this.selectedNode.move(mouseCoords);
     }
   }
 
   handleDoubleClick(event: MouseEvent) {
+    const mouseCoords = this.coordUtils.getMouseEventCoords(event);
     const node = this.getClickedNode(event);
+    
     if (node) {
       this.removeNode(node);
     } else {
-      new GraphNode(this, event.clientX, event.clientY);
+      const coords = this.coordUtils.clientToCoords(mouseCoords);
+      new GraphNode(this, coords.x, coords.y);
     }
   }
 
@@ -67,5 +86,10 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
     this.shiftDown = false;
     this.removeEdge(this.strayEdge!);
     this.strayEdge = undefined;
+  }
+
+  handleScroll(event: WheelEvent) {
+    const zoomFactor = 1+(5*event.deltaX / this.height);
+
   }
 }

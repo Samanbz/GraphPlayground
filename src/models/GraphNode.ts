@@ -1,3 +1,4 @@
+import { Coordinate } from "./Coordinate";
 import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 import { Point } from "./Point";
 
@@ -10,7 +11,6 @@ export class GraphNode extends Point {
   constructor(canvas: GraphCanvasRenderer, x: number, y: number) {
     super(canvas, x, y);
     canvas.addNode(this);
-    console.log(this.coords, this.canvasCoords);
   }
 
   /**
@@ -29,8 +29,8 @@ export class GraphNode extends Point {
     this.strokeColor = "#2196f3";
   }
 
-  contains(x: number, y: number): boolean {
-    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.clientToCanvas(x, y);
+  contains(coords: Coordinate): boolean {
+    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.clientToCanvas(coords);
     return Math.sqrt((this._x - canvasX) ** 2 + (this._y - canvasY) ** 2) <= this.radius;
   }
 

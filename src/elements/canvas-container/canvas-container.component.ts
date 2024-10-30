@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from "@angular/core";
-import { GraphCanvasHandlers, GraphNode } from "@models/index";
+import { GraphCanvasHandlers, GraphEdge, GraphNode } from "@models/index";
 
 @Component({
   selector: "app-canvas-container",
@@ -43,11 +43,14 @@ export class CanvasContainerComponent implements AfterViewInit {
     this.canvas.handleShiftUp();
   }
 
+  // @HostListener("document:wheel", ["$event"])
+  // onScroll(event: WheelEvent) {
+  //   this.canvas.handleScroll(event);
+  // }
+
   ngAfterViewInit() {
     this.canvas = new GraphCanvasHandlers(this.canvasElement.nativeElement);
     this.canvas.render();
 
-    new GraphNode(this.canvas, 0, 0);
-    new GraphNode(this.canvas, 200, 200);
   }
 }

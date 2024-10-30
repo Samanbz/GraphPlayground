@@ -44,7 +44,7 @@ export class GraphEdge implements GraphEntity {
   render(): void {
     this.canvas.ctx.beginPath();
     this.canvas.ctx.moveTo(this._from.canvasCoords.x, this._from.canvasCoords.y);
-    this.canvas.ctx.lineTo(this._to.canvasCoords.y, this._to.canvasCoords.x);
+    this.canvas.ctx.lineTo(this._to.canvasCoords.x, this._to.canvasCoords.y);
     this.canvas.ctx.lineWidth = this.lineWidth;
     this.canvas.ctx.strokeStyle = this.strokeColor;
     this.canvas.ctx.stroke();

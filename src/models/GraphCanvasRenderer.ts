@@ -68,7 +68,7 @@ export class GraphCanvasRenderer extends Graph {
     this.grid.render();
     this.edges.forEach((edge) => edge.render());
     this.nodes.forEach((node) => node.render());
-
+    
     requestAnimationFrame(this.render.bind(this));
   }
 }
