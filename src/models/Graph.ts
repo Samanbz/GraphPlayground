@@ -7,6 +7,7 @@ export abstract class Graph {
 
   addNode(node: GraphNode): void {
     this.nodes.push(node);
+    node.entryAnimation();
   }
 
   removeNode(node: GraphNode): void {

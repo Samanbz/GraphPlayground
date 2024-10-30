@@ -48,12 +48,14 @@ export class GraphCanvasRenderer extends Graph {
     this.ctx.scale(CoordUtils.DPR, CoordUtils.DPR);
   }
 
-  zoom(scale: number): void {
-    this.grid.adaptToScale(scale);
-    this.nodes.forEach((node) => {
-      node.adaptToScale(scale);
-    });
+  zoom(increment: boolean): void {
+    const zoomFactor = 1 + (increment ? 0.07 : -0.07);
+
+    this.grid.adaptToScale(zoomFactor);
+    this.nodes.forEach((node) => node.adaptToScale(zoomFactor));
+    this.edges.forEach((edge) => edge.adaptToScale(zoomFactor));
   }
+
   /**
    * Main rendering engine for the canvas.
    */
@@ -68,7 +70,8 @@ export class GraphCanvasRenderer extends Graph {
     this.grid.render();
     this.edges.forEach((edge) => edge.render());
     this.nodes.forEach((node) => node.render());
-    
+    console.log("requesting animation frame");
+
     requestAnimationFrame(this.render.bind(this));
   }
 }

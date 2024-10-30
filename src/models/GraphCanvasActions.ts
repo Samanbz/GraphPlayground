@@ -19,7 +19,15 @@ export class GraphCanvasActions extends GraphCanvasRenderer {
   constructor(canvas: HTMLCanvasElement) {
     super(canvas);
   }
-  
+
+  /**
+   * @param event mouse click event
+   * @returns the clicked node or undefined if no node was clicked
+   */
+  protected getClickedNode(event: MouseEvent): GraphNode | undefined {
+    const mouseCoords = this.coordUtils.getMouseEventCoords(event);
+    return this.nodes.find((node) => node.contains(mouseCoords));
+  }
 
   /**
    * @param node the node to select

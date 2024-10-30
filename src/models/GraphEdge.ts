@@ -41,6 +41,10 @@ export class GraphEdge implements GraphEntity {
     return this._to;
   }
 
+  adaptToScale(scaleFactor: number): void {
+    this.lineWidth *= scaleFactor;
+  }
+
   render(): void {
     this.canvas.ctx.beginPath();
     this.canvas.ctx.moveTo(this._from.canvasCoords.x, this._from.canvasCoords.y);
