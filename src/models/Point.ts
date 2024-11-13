@@ -1,23 +1,30 @@
-import { Coordinate } from "./Coordinate";
+import { Coordinate } from "./base/Coordinate";
 import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
-import { GraphEntity } from "./GraphEntity";
-import { Matrix } from "./Matrix";
+import { GraphEntity } from "./base/GraphEntity";
+import { Circle } from "two.js/src/shapes/circle";
 
-export class Point implements Coordinate, GraphEntity {
+// not necessarily associated with a shape
+export class Point implements GraphEntity {
   protected _x: number;
   protected _y: number;
-  protected _radius: number = 2;
-  protected color: string = "#FFFFFF22";
+  protected color: string = "#AAAAAAAA";
+
+  shape: Circle;
 
   constructor(
     public canvas: GraphCanvasRenderer,
     x: number,
     y: number,
+    protected _radius: number = 2,
   ) {
     this.canvas = canvas;
-    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.coordsToCanvas({ x, y });
+
+    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.coordsToCanvas(Coordinate.fromXY(x, y));
     this._x = canvasX;
     this._y = canvasY;
+
+    this.shape = new Circle(this._x, this._y, this._radius);
+    this.shape.fill = this.color;
   }
 
   get coords(): Coordinate {
@@ -25,14 +32,7 @@ export class Point implements Coordinate, GraphEntity {
   }
 
   get canvasCoords(): Coordinate {
-    return {
-      x: this._x,
-      y: this._y,
-    };
-  }
-
-  get clientCoords(): Coordinate {
-    return this.canvas.coordUtils.canvasToClient(this.canvasCoords);
+    return Coordinate.fromXY(this._x, this._y);
   }
 
   get x(): number {
@@ -57,30 +57,7 @@ export class Point implements Coordinate, GraphEntity {
     this._y = newY;
   }
 
-  /**
-   * Transforms the node by the given matrix.
-   * @param matrix transformation matrix
-   */
-  protected matrixTransform(matrix: Matrix): void {
-    const [newX, newY] = matrix.executeTransform(this.x, this.y);
-    this.move(this.canvas.coordUtils.coordsToCanvas({ x: newX, y: newY }));
-  }
-
-  adaptToScale(scaleFactor: number): void {
-    this.scale(scaleFactor);
-    this.matrixTransform(
-      new Matrix([
-        [scaleFactor, 0],
-        [0, scaleFactor],
-      ]),
-    );
-  }
-
-  render(): void {
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.arc(this._x, this._y, this._radius, 0, 2 * Math.PI);
-    this.canvas.ctx.fillStyle = this.color;
-    this.canvas.ctx.fill();
-    this.canvas.ctx.closePath();
+  update(): void {
+    this.canvas.graphics.makeCircle(this._x, this._y, this._radius).fill = this.color; //FIXME
   }
 }

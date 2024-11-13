@@ -1,17 +1,23 @@
-import { TransitionUtils } from "utils/transition/TransitionUtils";
-import { Coordinate } from "./Coordinate";
+import { Coordinate } from "./base/Coordinate";
 import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 import { Point } from "./Point";
+import { Circle } from "two.js/src/shapes/circle";
 
 export class GraphNode extends Point {
-  protected override _radius: number = 0;
+  protected override _radius: number = 40;
   protected override color: string = "#bbdefb";
   protected lineWidth: number = this.radius / 15;
-  protected strokeColor: string = "#2196f3";
+  protected strokeColor: string = "#bbdefb";
   private originalRadius: number = 60;
 
   constructor(canvas: GraphCanvasRenderer, x: number, y: number) {
     super(canvas, x, y);
+
+    this.shape = new Circle(this._x, this._y, this._radius);
+    this.shape.fill = this.color;
+    this.shape.stroke = this.strokeColor;
+    this.shape.linewidth = this.lineWidth;
+
     canvas.addNode(this);
   }
 
@@ -23,7 +29,7 @@ export class GraphNode extends Point {
    * Changes the styling of the node to indicate that it is selected.
    */
   select(): void {
-    this.color = "#2196f3";
+    this.color = "#bbdefb";
     this.strokeColor = "#2196f3";
   }
 
@@ -32,31 +38,17 @@ export class GraphNode extends Point {
    */
   deselect(): void {
     this.color = "#bbdefb";
-    this.strokeColor = "#2196f3";
+    this.strokeColor = "#bbdefb";
   }
 
   contains(coords: Coordinate): boolean {
-    const { x: canvasX, y: canvasY } = this.canvas.coordUtils.clientToCanvas(coords);
-    return Math.sqrt((this._x - canvasX) ** 2 + (this._y - canvasY) ** 2) <= this.radius;
+    return Math.sqrt((this.x - coords.x) ** 2 + (this.y - coords.y) ** 2) <= this.radius;
   }
 
-  entryAnimation(): void {
-    TransitionUtils.animate(this._radius, this.originalRadius, 50, (s) => this.setRadius(s));
-  }
-
-  override adaptToScale(scaleFactor: number): void {
-    super.adaptToScale(scaleFactor);
-    this.lineWidth *= scaleFactor;
-  }
-
-  override render(): void {
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.arc(this._x, this._y, this._radius, 0, 2 * Math.PI);
-    this.canvas.ctx.fillStyle = this.color;
-    this.canvas.ctx.fill();
-    this.canvas.ctx.lineWidth = this.lineWidth;
-    this.canvas.ctx.strokeStyle = this.strokeColor;
-    this.canvas.ctx.stroke();
-    this.canvas.ctx.closePath();
+  override update(): void {
+    this.shape.translation.set(this._x, this._y);
+    this.shape.radius = this._radius;
+    this.shape.fill = this.color;
+    this.shape.stroke = this.strokeColor;
   }
 }

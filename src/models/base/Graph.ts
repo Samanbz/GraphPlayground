@@ -1,5 +1,5 @@
-import { GraphEdge } from "./GraphEdge";
-import { GraphNode } from "./GraphNode";
+import { GraphEdge } from "../GraphEdge";
+import { GraphNode } from "../GraphNode";
 
 export abstract class Graph {
   protected nodes: GraphNode[];
@@ -7,7 +7,6 @@ export abstract class Graph {
 
   addNode(node: GraphNode): void {
     this.nodes.push(node);
-    node.entryAnimation();
   }
 
   removeNode(node: GraphNode): void {

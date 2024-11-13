@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, HostListener, ViewChild } from "@angular/core";
-import { GraphCanvasHandlers } from "@models/index";
+import { GraphCanvasHandlers } from "@models/GraphCanvasHandlers";
 
 @Component({
   selector: "app-canvas-container",
@@ -9,10 +9,9 @@ import { GraphCanvasHandlers } from "@models/index";
   styleUrl: "./canvas-container.component.scss",
 })
 export class CanvasContainerComponent implements AfterViewInit {
-  @ViewChild("canvas", { static: false })
-  canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild("canvascont", { static: false })
+  canvasContainer!: ElementRef<HTMLDivElement>;
   private canvas!: GraphCanvasHandlers;
-  private mouseCustomCursor: boolean = false;
 
   @HostListener("mousedown", ["$event"])
   onMouseDown(event: MouseEvent) {
@@ -44,19 +43,22 @@ export class CanvasContainerComponent implements AfterViewInit {
     this.canvas.handleShiftUp();
   }
 
+  @HostListener("document:keydown.space")
+  onSpaceDown() {
+    this.canvas.handleSpaceDown();
+  }
+
+  @HostListener("document:keyup.space")
+  onSpaceUp() {
+    this.canvas.handleSpaceUp();
+  }
+
   @HostListener("document:wheel", ["$event"])
   onScroll(event: WheelEvent) {
     this.canvas.handleScroll(event);
   }
 
-  // Change mouse cursor to hand when holding spacebar
-  @HostListener("document:keydown.space")
-  onSpaceDown() {
-    this.mouseCustomCursor = true;
-  }
-
   ngAfterViewInit() {
-    this.canvas = new GraphCanvasHandlers(this.canvasElement.nativeElement);
-    this.canvas.render();
+    this.canvas = new GraphCanvasHandlers(this.canvasContainer.nativeElement);
   }
 }

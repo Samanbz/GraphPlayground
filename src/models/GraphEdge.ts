@@ -1,24 +1,35 @@
-import { Coordinate } from "./Coordinate";
+import { Line } from "two.js/src/shapes/line";
 import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
-import { GraphEntity } from "./GraphEntity";
+import { GraphEntity } from "./base/GraphEntity";
 import { GraphNode } from "./GraphNode";
 import { Point } from "./Point";
+
 export class GraphEdge implements GraphEntity {
   private _from: GraphNode;
-  private _to: Point;
+  private _to: Point | GraphNode;
   private lineWidth: number = 2;
   private strokeColor: string = "#FFFFFFEE";
+
+  shape: Line;
 
   constructor(
     public canvas: GraphCanvasRenderer,
     from: GraphNode,
-    to: Point,
+    to: Point | GraphNode,
   ) {
     this.canvas = canvas;
-    canvas.addEdge(this);
 
     this._from = from;
     this._to = to;
+
+    const fromCoords = from.canvasCoords;
+    const toCoords = to.canvasCoords;
+
+    this.shape = new Line(fromCoords.x, fromCoords.y, toCoords.x, toCoords.y);
+    this.shape.stroke = this.strokeColor;
+    this.shape.linewidth = this.lineWidth;
+
+    this.canvas.addEdge(this);
   }
 
   setDestination(to: Point): void {
@@ -29,29 +40,26 @@ export class GraphEdge implements GraphEntity {
     this.lineWidth = width;
   }
 
-  containsNode(node: Coordinate): boolean {
+  containsNode(node: GraphNode): boolean {
     return this._from === node || this._to === node;
   }
 
-  get from(): Coordinate {
+  get from(): GraphNode {
     return this._from;
   }
 
-  get to(): Coordinate {
+  get to(): Point {
     return this._to;
   }
 
-  adaptToScale(scaleFactor: number): void {
-    this.lineWidth *= scaleFactor;
-  }
+  update(): void {
+    this.shape.stroke = this.strokeColor;
+    this.shape.linewidth = this.lineWidth;
 
-  render(): void {
-    this.canvas.ctx.beginPath();
-    this.canvas.ctx.moveTo(this._from.canvasCoords.x, this._from.canvasCoords.y);
-    this.canvas.ctx.lineTo(this._to.canvasCoords.x, this._to.canvasCoords.y);
-    this.canvas.ctx.lineWidth = this.lineWidth;
-    this.canvas.ctx.strokeStyle = this.strokeColor;
-    this.canvas.ctx.stroke();
-    this.canvas.ctx.closePath();
+    const fromCoords = this._from.canvasCoords;
+    const toCoords = this._to.canvasCoords;
+
+    this.shape.vertices[0].set(fromCoords.x, fromCoords.y);
+    this.shape.vertices[1].set(toCoords.x, toCoords.y);
   }
 }

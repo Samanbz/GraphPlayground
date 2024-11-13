@@ -1,20 +1,43 @@
+import { Coordinate } from "./base";
 import { GraphCanvasActions } from "./GraphCanvasActions";
 import { GraphEdge } from "./GraphEdge";
 import { GraphNode } from "./GraphNode";
 import { Point } from "./Point";
 
 export class GraphCanvasHandlers extends GraphCanvasActions {
-  constructor(canvas: HTMLCanvasElement) {
-    super(canvas);
+  protected shiftDown: boolean = false;
+  protected spaceDown: boolean = false;
+
+  private panning: boolean = false;
+  private panStart: Coordinate | undefined;
+  private panEnd: Coordinate | undefined;
+
+  constructor(container: HTMLDivElement) {
+    super(container);
+  }
+
+  protected handleSecondaryNodeMouseUp(node: GraphNode) {
+    if (node == this.selectedNode) {
+      this.nodeMovementAllowed = false;
+    } else if (this.strayEdge) {
+      this.strayEdge.setDestination(node);
+      this.strayEdge.setLineWidth(4);
+      this.strayEdge = undefined;
+    }
   }
 
   handleMouseDown(event: MouseEvent): void {
     const mouseCoords = this.coordUtils.getMouseEventCoords(event);
-    const clickedNode: GraphNode | undefined = this.getClickedNode(event);
 
+    if (this.spaceDown) {
+      this.panning = true;
+      this.panStart = mouseCoords;
+    }
+
+    const clickedNode: GraphNode | undefined = this.getClickedNode(event);
     if (clickedNode) {
       if (this.shiftDown && !this.strayEdge) {
-        const strayEdgeEndCoords = this.coordUtils.clientToCoords(mouseCoords);
+        const strayEdgeEndCoords = this.coordUtils.canvasToCoords(mouseCoords);
         this.strayEdgeEnd = new Point(this, strayEdgeEndCoords.x, strayEdgeEndCoords.y);
         this.strayEdge = new GraphEdge(this, clickedNode, this.strayEdgeEnd);
       } else if (this.shiftDown && this.strayEdge) {
@@ -27,6 +50,11 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
   }
 
   handleMouseUp(event: MouseEvent): void {
+    if (this.panning) {
+      this.panning = false;
+      this.panStart = undefined;
+    }
+
     const clickedNode: GraphNode | undefined = this.getClickedNode(event);
     if (!clickedNode) {
       if (this.strayEdge) {
@@ -46,12 +74,18 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
   handleMouseMove(event: MouseEvent): void {
     const mouseCoords = this.coordUtils.getMouseEventCoords(event);
 
+    if (this.panning && this.panStart) {
+      this.panEnd = mouseCoords;
+      const delta = this.panEnd.minus(this.panStart);
+      this.pan(delta);
+      this.panStart = this.panEnd;
+    }
     if (this.strayEdge && this.strayEdgeEnd && this.shiftDown) {
-      this.strayEdgeEnd.move(this.coordUtils.clientToCanvas(mouseCoords));
+      this.strayEdgeEnd.move(mouseCoords);
       this.strayEdge.setDestination(this.strayEdgeEnd);
     }
     if (this.selectedNode && this.nodeMovementAllowed) {
-      this.selectedNode.move(this.coordUtils.clientToCanvas(mouseCoords));
+      this.selectedNode.move(mouseCoords);
     }
   }
 
@@ -62,7 +96,7 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
     if (node) {
       this.removeNode(node);
     } else {
-      const coords = this.coordUtils.clientToCoords(mouseCoords);
+      const coords = this.coordUtils.canvasToCoords(mouseCoords);
       new GraphNode(this, coords.x, coords.y);
     }
   }
@@ -73,12 +107,27 @@ export class GraphCanvasHandlers extends GraphCanvasActions {
 
   handleShiftUp() {
     this.shiftDown = false;
-    this.removeEdge(this.strayEdge!);
-    this.strayEdge = undefined;
+    if (this.strayEdge) {
+      this.removeEdge(this.strayEdge);
+      this.strayEdge = undefined;
+    }
+  }
+
+  handleSpaceDown() {
+    this.spaceDown = true;
+  }
+
+  handleSpaceUp() {
+    this.spaceDown = false;
+    if (this.panning) {
+      this.panning = false;
+      this.panStart = undefined;
+    }
   }
 
   handleScroll(event: WheelEvent) {
     const increment = event.deltaY < 0;
-    event.shiftKey && this.zoom(increment);
+    const zoomOrigin = this.coordUtils.getMouseEventCoords(event);
+    event.shiftKey && this.zoom(increment, zoomOrigin);
   }
 }

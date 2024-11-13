@@ -1,7 +1,6 @@
 import { GraphCanvasRenderer } from "./GraphCanvasRenderer";
 import { GraphEdge } from "./GraphEdge";
 import { GraphNode } from "./GraphNode";
-import { Coordinate } from "./Coordinate";
 import { Point } from "./Point";
 
 /**
@@ -12,12 +11,11 @@ import { Point } from "./Point";
 export class GraphCanvasActions extends GraphCanvasRenderer {
   protected selectedNode: GraphNode | undefined;
   protected nodeMovementAllowed: boolean = false;
-  protected shiftDown: boolean = false;
   protected strayEdge: GraphEdge | undefined;
   protected strayEdgeEnd: Point | undefined;
 
-  constructor(canvas: HTMLCanvasElement) {
-    super(canvas);
+  constructor(container: HTMLDivElement) {
+    super(container);
   }
 
   /**
@@ -25,7 +23,8 @@ export class GraphCanvasActions extends GraphCanvasRenderer {
    * @returns the clicked node or undefined if no node was clicked
    */
   protected getClickedNode(event: MouseEvent): GraphNode | undefined {
-    const mouseCoords = this.coordUtils.getMouseEventCoords(event);
+    const mouseCanvasCoords = this.coordUtils.getMouseEventCoords(event);
+    const mouseCoords = this.coordUtils.canvasToCoords(mouseCanvasCoords);
     return this.nodes.find((node) => node.contains(mouseCoords));
   }
 
@@ -54,22 +53,12 @@ export class GraphCanvasActions extends GraphCanvasRenderer {
     }
   }
 
-  protected edgeExists(from: Coordinate, to: Coordinate): boolean {
+  private edgeExists(from: GraphNode, to: GraphNode): boolean {
     return !!this.edges.find((edge) => edge.from === from && edge.to === to);
   }
 
   protected connectStrayEdge(node: GraphNode): void {
     if (this.strayEdge && !this.edgeExists(this.strayEdge.from, node)) {
-      this.strayEdge.setDestination(node);
-      this.strayEdge.setLineWidth(4);
-      this.strayEdge = undefined;
-    }
-  }
-
-  protected handleSecondaryNodeMouseUp(node: GraphNode) {
-    if (node == this.selectedNode) {
-      this.nodeMovementAllowed = false;
-    } else if (this.strayEdge) {
       this.strayEdge.setDestination(node);
       this.strayEdge.setLineWidth(4);
       this.strayEdge = undefined;
